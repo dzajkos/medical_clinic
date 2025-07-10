@@ -1,5 +1,6 @@
 package com.dzajkos.medical_clinic.service;
 
+import com.dzajkos.medical_clinic.exception.PatientNotFound;
 import com.dzajkos.medical_clinic.model.Patient;
 import com.dzajkos.medical_clinic.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ public class PatientService {
 
     public Patient getPatient(String email) {
         return patientRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Patient with given email does not exist."));
+                .orElseThrow(() -> new PatientNotFound("Patient with given email does not exist."));
     }
 
     public Patient addPatient(Patient patient) {
