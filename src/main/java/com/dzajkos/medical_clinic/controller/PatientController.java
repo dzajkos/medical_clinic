@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.NO_CONTENT;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/patients")
@@ -25,16 +27,17 @@ public class PatientController {
     }
 
     @PostMapping
-    public void addPatient(@RequestBody Patient patient) {
-        patientService.addPatient(patient);
+    public Patient addPatient(@RequestBody Patient patient) {
+        return patientService.addPatient(patient);
     }
 
     @PutMapping("/{email}")
-    public void updatePatient(@PathVariable String email, @RequestBody Patient updatedPatient) {
-        patientService.updatePatient(email, updatedPatient);
+    public Patient updatePatient(@PathVariable String email, @RequestBody Patient updatedPatient) {
+        return patientService.updatePatient(email, updatedPatient);
     }
 
     @DeleteMapping("/{email}")
+    @ResponseStatus(NO_CONTENT)
     public void deletePatient(@PathVariable String email) {
         patientService.deletePatient(email);
     }

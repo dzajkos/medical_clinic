@@ -22,12 +22,12 @@ public class PatientService {
                 .orElseThrow(() -> new IllegalArgumentException("Patient with given email does not exist."));
     }
 
-    public void addPatient(Patient patient) {
-        patientRepository.add(patient);
+    public Patient addPatient(Patient patient) {
+        return patientRepository.add(patient);
     }
 
-    public void updatePatient(String email, Patient updatedPatient) {
-        patientRepository.update(email, updatedPatient);
+    public Patient updatePatient(String email, Patient updatedPatient) {
+        return patientRepository.update(email, updatedPatient);
     }
 
     public void deletePatient(String email) {
