@@ -30,8 +30,8 @@ public class PatientRepository {
     public Patient update(String email, Patient updatedPatient) {
         return findByEmail(email)
                 .map(originalPatient -> {
+                    originalPatient.setEmail(updatedPatient.getEmail());
                     originalPatient.setPassword(updatedPatient.getPassword());
-                    originalPatient.setIdCardNo(updatedPatient.getIdCardNo());
                     originalPatient.setFirstName(updatedPatient.getFirstName());
                     originalPatient.setLastName(updatedPatient.getLastName());
                     originalPatient.setBirthday(updatedPatient.getBirthday());
@@ -46,5 +46,17 @@ public class PatientRepository {
         Patient patient = findByEmail(email)
                 .orElseThrow(() -> new PatientNotFound("Patient not found"));
         patients.remove(patient);
+    }
+
+    public Optional<Patient> changePassword(Patient patient, String newPassword) {
+        if(!exists(patient)) {
+            return Optional.empty();
+        }
+        patient.setPassword(newPassword);
+        return Optional.of(patient);
+    }
+
+    private boolean exists (Patient patient) {
+        return patients.contains(patient);
     }
 }
