@@ -7,6 +7,7 @@ import com.dzajkos.medical_clinic.exception.ValueIsNull;
 import com.dzajkos.medical_clinic.model.Patient;
 import com.dzajkos.medical_clinic.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,37 +24,25 @@ public class PatientService {
 
     public Patient getPatient(String email) {
         return patientRepository.findByEmail(email)
-                .orElseThrow(() -> new PatientNotFound("Patient with given email does not exist."));
+                .orElseThrow(() -> new PatientNotFound("Patient with given email does not exist.", HttpStatus.NOT_FOUND));
     }
 
     public Patient addPatient(Patient patient) {
-        if (patientRepository.findByEmail(patient.getEmail()).isEmpty()) {
-            return patientRepository.add(patient);
+        if (patientRepository.findByEmail(patient.getEmail()).isPresent()) {
+            throw new PatientAlreadyExists("Patient already exists", HttpStatus.CONFLICT);
         }
-        throw new PatientAlreadyExists("Patient already exists");
+        return patientRepository.add(patient);
     }
 
     public Patient updatePatient(String email, Patient updatedPatient) {
         Patient originalPatient = getPatient(email);
         if (!updatedPatient.getIdCardNo().equals(originalPatient.getIdCardNo())) {
-            throw new IdCardChangeNotAllowed("Can't change ID card number");
+            throw new IdCardChangeNotAllowed("Can't change ID card number", HttpStatus.CONFLICT);
         }
-        if (updatedPatient.getPassword() == null ||
-                updatedPatient.getEmail() == null ||
-                updatedPatient.getBirthday() == null ||
-                updatedPatient.getLastName() == null ||
-                updatedPatient.getFirstName() == null ||
-                updatedPatient.getPhoneNumber() == null
-        ) {
-            throw new ValueIsNull("Can't change value to null");
-        }
-        boolean emailExists = patientRepository.findAll().stream()
-                .anyMatch(patient -> !patient.getEmail().equals(email) &&
-                        patient.getEmail().equals(updatedPatient.getEmail()));
+        PatientValidator.nullCheck(updatedPatient);
 
-        if (emailExists) {
-            throw new PatientAlreadyExists("Patient with given email already exists");
-        }
+        PatientValidator.emailCheck(email, updatedPatient, patientRepository);
+
         return patientRepository.update(email, updatedPatient);
     }
 
@@ -63,11 +52,11 @@ public class PatientService {
 
     public Patient changePassword(String email, String newPassword) {
         Patient patient = patientRepository.findByEmail(email)
-                .orElseThrow(() -> new PatientNotFound("Patient not found"));
+                .orElseThrow(() -> new PatientNotFound("Patient not found", HttpStatus.NOT_FOUND));
         if (newPassword == null) {
-            throw new ValueIsNull("Password is null");
+            throw new ValueIsNull("Password is null", HttpStatus.CONFLICT);
         }
         return patientRepository.changePassword(patient, newPassword)
-                .orElseThrow(() -> new PatientNotFound("Could not update password"));
+                .orElseThrow(() -> new PatientNotFound("Could not update password", HttpStatus.NOT_FOUND));
     }
 }

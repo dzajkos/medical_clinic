@@ -1,7 +1,10 @@
 package com.dzajkos.medical_clinic.exception;
 
-public class PatientNotFound extends RuntimeException {
-    public PatientNotFound(String message) {
-        super(message);
+import org.springframework.http.HttpStatus;
+
+public class PatientNotFound extends MedicalClinicException {
+
+    public PatientNotFound(String message, HttpStatus status) {
+        super(message, status);
     }
 }

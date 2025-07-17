@@ -1,7 +1,10 @@
 package com.dzajkos.medical_clinic.exception;
 
-public class PatientAlreadyExists extends RuntimeException {
-    public PatientAlreadyExists(String message) {
-        super(message);
+import org.springframework.http.HttpStatus;
+
+public class PatientAlreadyExists extends MedicalClinicException {
+
+    public PatientAlreadyExists(String message, HttpStatus status) {
+        super(message, status);
     }
 }

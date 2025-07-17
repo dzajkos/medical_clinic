@@ -2,6 +2,7 @@ package com.dzajkos.medical_clinic.repository;
 
 import com.dzajkos.medical_clinic.exception.PatientNotFound;
 import com.dzajkos.medical_clinic.model.Patient;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -38,25 +39,25 @@ public class PatientRepository {
                     originalPatient.setPhoneNumber(updatedPatient.getPhoneNumber());
                     return originalPatient;
                 })
-                .orElseThrow(() -> new PatientNotFound("Patient not found"));
+                .orElseThrow(() -> new PatientNotFound("Patient not found", HttpStatus.NOT_FOUND));
     }
 
 
     public void delete(String email) {
         Patient patient = findByEmail(email)
-                .orElseThrow(() -> new PatientNotFound("Patient not found"));
+                .orElseThrow(() -> new PatientNotFound("Patient not found", HttpStatus.NOT_FOUND));
         patients.remove(patient);
     }
 
     public Optional<Patient> changePassword(Patient patient, String newPassword) {
-        if(!exists(patient)) {
+        if (!exists(patient)) {
             return Optional.empty();
         }
         patient.setPassword(newPassword);
         return Optional.of(patient);
     }
 
-    private boolean exists (Patient patient) {
+    private boolean exists(Patient patient) {
         return patients.contains(patient);
     }
 }
