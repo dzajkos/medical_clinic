@@ -1,12 +1,16 @@
 package com.dzajkos.medical_clinic.controller;
 
+import com.dzajkos.medical_clinic.mapper.PatientMapper;
 import com.dzajkos.medical_clinic.model.Patient;
+import com.dzajkos.medical_clinic.model.PatientCreationDTO;
+import com.dzajkos.medical_clinic.model.PatientResponseDTO;
 import com.dzajkos.medical_clinic.service.PatientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 @RestController
@@ -17,23 +21,26 @@ public class PatientController {
     private final PatientService patientService;
 
     @GetMapping
-    public List<Patient> getPatients() {
-        return patientService.getPatients();
+    public List<PatientResponseDTO> getPatients() {
+        return patientService.getPatients().stream()
+                .map(PatientMapper::toResponseDTO)
+                .toList();
     }
 
     @GetMapping("/{email}")
-    public Patient getPatientByEmail(@PathVariable("email") String email) {
-        return patientService.getPatient(email);
+    public PatientResponseDTO getPatientByEmail(@PathVariable("email") String email) {
+        return PatientMapper.toResponseDTO(patientService.getPatient(email));
     }
 
     @PostMapping
-    public Patient addPatient(@RequestBody Patient patient) {
-        return patientService.addPatient(patient);
+    @ResponseStatus(CREATED)
+    public PatientResponseDTO addPatient(@RequestBody PatientCreationDTO patientDTO) {
+        return PatientMapper.toResponseDTO(patientService.addPatient(PatientMapper.toEntity(patientDTO)));
     }
 
     @PutMapping("/{email}")
-    public Patient updatePatient(@PathVariable String email, @RequestBody Patient updatedPatient) {
-        return patientService.updatePatient(email, updatedPatient);
+    public PatientResponseDTO updatePatient(@PathVariable String email, @RequestBody PatientCreationDTO updatedPatientDTO) {
+        return PatientMapper.toResponseDTO(patientService.updatePatient(email, PatientMapper.toEntity(updatedPatientDTO)));
     }
 
     @DeleteMapping("/{email}")
@@ -43,7 +50,7 @@ public class PatientController {
     }
 
     @PatchMapping("{email}")
-    public Patient changePassword(@PathVariable String email, @RequestBody Patient patientWithChangedPassword) {
-        return patientService.changePassword(email, patientWithChangedPassword.getPassword());
+    public PatientResponseDTO changePassword(@PathVariable String email, @RequestBody PatientCreationDTO patientWithChangedPasswordDTO) {
+        return PatientMapper.toResponseDTO(patientService.changePassword(email, patientWithChangedPasswordDTO.getPassword()));
     }
 }

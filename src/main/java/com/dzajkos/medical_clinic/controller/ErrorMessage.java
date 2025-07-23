@@ -9,7 +9,7 @@ import java.time.OffsetDateTime;
 @Getter
 public class ErrorMessage {
 
-    public String message;
-    HttpStatus httpStatus;
-    OffsetDateTime date;
+    private String message;
+    private HttpStatus httpStatus;
+    private OffsetDateTime date;
 }
