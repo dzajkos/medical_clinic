@@ -14,7 +14,6 @@ import java.time.OffsetDateTime;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MedicalClinicException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ErrorMessage> handleMedicalClinicException(MedicalClinicException exception) {
         return new ResponseEntity<>(new ErrorMessage(exception.getMessage(), exception.getStatus(), OffsetDateTime.now()), exception.getStatus());
     }

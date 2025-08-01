@@ -1,10 +1,16 @@
 package com.dzajkos.medical_clinic.controller;
 
 import com.dzajkos.medical_clinic.mapper.PatientMapper;
+import com.dzajkos.medical_clinic.model.CreatePatientCommand;
 import com.dzajkos.medical_clinic.model.Patient;
-import com.dzajkos.medical_clinic.model.PatientCreationDTO;
-import com.dzajkos.medical_clinic.model.PatientResponseDTO;
+import com.dzajkos.medical_clinic.model.PatientDTO;
 import com.dzajkos.medical_clinic.service.PatientService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,38 +25,96 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 public class PatientController {
 
     private final PatientService patientService;
+    private final PatientMapper patientMapper;
 
+    @Tag(name = "find")
+    @Operation(summary = "Get list of all patients")
+    @ApiResponse(responseCode = "200", description = "Got list of patients (even if empty)")
     @GetMapping
-    public List<PatientResponseDTO> getPatients() {
+    public List<PatientDTO> getPatients() {
         return patientService.getPatients().stream()
-                .map(PatientMapper::toResponseDTO)
+                .map(patientMapper::patientToDTO)
                 .toList();
     }
 
+    @Tag(name = "find")
+    @Operation(summary = "Get Patient by email")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the Patient",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = PatientDTO.class))}),
+            @ApiResponse(responseCode = "404", description = "Patient with given email not found",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessage.class))})
+    })
     @GetMapping("/{email}")
-    public PatientResponseDTO getPatientByEmail(@PathVariable("email") String email) {
-        return PatientMapper.toResponseDTO(patientService.getPatient(email));
+    public PatientDTO getPatientByEmail(@PathVariable("email") String email) {
+        return patientMapper.patientToDTO(patientService.getPatient(email));
     }
 
+    @Tag(name = "create")
+    @Operation(summary = "Create new Patient")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Patient created",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = PatientDTO.class))}),
+            @ApiResponse(responseCode = "409", description = "Patient already exists",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessage.class))})
+    })
     @PostMapping
     @ResponseStatus(CREATED)
-    public PatientResponseDTO addPatient(@RequestBody PatientCreationDTO patientDTO) {
-        return PatientMapper.toResponseDTO(patientService.addPatient(PatientMapper.toEntity(patientDTO)));
+    public PatientDTO addPatient(@RequestBody CreatePatientCommand createPatientCommand) {
+        return patientMapper.patientToDTO(patientService.addPatient(patientMapper.createCommandToPatient(createPatientCommand)));
     }
 
+    @Tag(name = "update")
+    @Operation(summary = "replaces Patient")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Patient replaced",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = PatientDTO.class))}),
+            @ApiResponse(responseCode = "404", description = "Patient not found",
+            content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = ErrorMessage.class))}),
+            @ApiResponse(responseCode = "409",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessage.class))})
+    })
     @PutMapping("/{email}")
-    public PatientResponseDTO updatePatient(@PathVariable String email, @RequestBody PatientCreationDTO updatedPatientDTO) {
-        return PatientMapper.toResponseDTO(patientService.updatePatient(email, PatientMapper.toEntity(updatedPatientDTO)));
+    public PatientDTO updatePatient(@PathVariable String email, @RequestBody CreatePatientCommand updatedPatientDTO) {
+        return patientMapper.patientToDTO(patientService.updatePatient(email, patientMapper.createCommandToPatient(updatedPatientDTO)));
     }
 
+    @Tag(name = "delete")
+    @Operation(summary = "deletes Patient")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Patient replaced"),
+            @ApiResponse(responseCode = "404", description = "Patient not found",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessage.class))}),
+    })
     @DeleteMapping("/{email}")
     @ResponseStatus(NO_CONTENT)
     public void deletePatient(@PathVariable String email) {
         patientService.deletePatient(email);
     }
 
+    @Tag(name = "update")
+    @Operation(summary = "updates Patient password")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "password updated",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = PatientDTO.class))}),
+            @ApiResponse(responseCode = "404", description = "Patient not found",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessage.class))}),
+            @ApiResponse(responseCode = "409",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessage.class))})
+    })
     @PatchMapping("{email}")
-    public PatientResponseDTO changePassword(@PathVariable String email, @RequestBody PatientCreationDTO patientWithChangedPasswordDTO) {
-        return PatientMapper.toResponseDTO(patientService.changePassword(email, patientWithChangedPasswordDTO.getPassword()));
+    public PatientDTO changePassword(@PathVariable String email, @RequestBody CreatePatientCommand patientWithChangedPasswordDTO) {
+        return patientMapper.patientToDTO(patientService.changePassword(email, patientWithChangedPasswordDTO.password()));
     }
 }

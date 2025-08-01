@@ -31,7 +31,7 @@ public class PatientService {
         if (patientRepository.findByEmail(patient.getEmail()).isPresent()) {
             throw new PatientAlreadyExists("Patient already exists", HttpStatus.CONFLICT);
         }
-        return patientRepository.add(patient);
+        return patientRepository.save(patient);
     }
 
     public Patient updatePatient(String email, Patient updatedPatient) {
@@ -43,11 +43,18 @@ public class PatientService {
 
         PatientValidator.emailCheck(email, updatedPatient, patientRepository);
 
-        return patientRepository.update(email, updatedPatient);
+        originalPatient.setPassword(updatedPatient.getPassword());
+        originalPatient.setEmail(updatedPatient.getEmail());
+        originalPatient.setBirthday(updatedPatient.getBirthday());
+        originalPatient.setFirstName(updatedPatient.getFirstName());
+        originalPatient.setLastName(updatedPatient.getLastName());
+        originalPatient.setPhoneNumber(updatedPatient.getPhoneNumber());
+
+        return patientRepository.save(originalPatient);
     }
 
     public void deletePatient(String email) {
-        patientRepository.delete(email);
+        patientRepository.delete(getPatient(email));
     }
 
     public Patient changePassword(String email, String newPassword) {
@@ -56,7 +63,7 @@ public class PatientService {
         if (newPassword == null) {
             throw new ValueIsNull("Password is null", HttpStatus.CONFLICT);
         }
-        return patientRepository.changePassword(patient, newPassword)
-                .orElseThrow(() -> new PatientNotFound("Could not update password", HttpStatus.NOT_FOUND));
+        patient.setPassword(newPassword);
+        return patientRepository.save(patient);
     }
 }

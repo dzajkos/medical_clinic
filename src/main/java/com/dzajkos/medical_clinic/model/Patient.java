@@ -1,9 +1,7 @@
 package com.dzajkos.medical_clinic.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -11,7 +9,15 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Setter
 @NoArgsConstructor
+@Builder
+@Entity
 public class Patient {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column()
     private String email;
     private String password;
     private String idCardNo;
