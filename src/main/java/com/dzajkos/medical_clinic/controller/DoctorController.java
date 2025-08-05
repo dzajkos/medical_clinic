@@ -98,7 +98,6 @@ public class DoctorController {
                             schema = @Schema(implementation = ErrorMessage.class))})
     })
     @PatchMapping("/{email}")
-    @ResponseStatus(NO_CONTENT)
     public ClinicDTO assignClinic(@PathVariable String email, @RequestBody ClinicSelector clinicSelector) {
         return clinicMapper.clinicToDTO(doctorService.assignClinic(email, clinicSelector.getName()));
     }
