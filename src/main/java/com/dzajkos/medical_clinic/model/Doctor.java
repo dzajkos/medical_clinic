@@ -3,7 +3,7 @@ package com.dzajkos.medical_clinic.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -11,17 +11,19 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 @Entity
-public class Patient {
+public class Doctor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String email;
     private String password;
-    private String idCardNo;
     private String firstName;
     private String lastName;
-    private String phoneNumber;
-    private LocalDate birthday;
+    @ManyToMany
+    @JoinTable(
+            name = "doctor_clinic",
+            joinColumns = @JoinColumn(name = "doctor_id"),
+            inverseJoinColumns = @JoinColumn(name = "clinic_id"))
+    private List<Clinic> clinics;
 }

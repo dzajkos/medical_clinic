@@ -4,6 +4,7 @@ import com.dzajkos.medical_clinic.mapper.PatientMapper;
 import com.dzajkos.medical_clinic.model.CreatePatientCommand;
 import com.dzajkos.medical_clinic.model.Patient;
 import com.dzajkos.medical_clinic.model.PatientDTO;
+import com.dzajkos.medical_clinic.service.PatientSelector;
 import com.dzajkos.medical_clinic.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -116,5 +117,10 @@ public class PatientController {
     @PatchMapping("{email}")
     public PatientDTO changePassword(@PathVariable String email, @RequestBody CreatePatientCommand patientWithChangedPasswordDTO) {
         return patientMapper.patientToDTO(patientService.changePassword(email, patientWithChangedPasswordDTO.password()));
+    }
+
+    @DeleteMapping
+    public void batchDeletePatients(@RequestBody PatientSelector patientSelector) {
+        patientService.batchDeletePatients(patientSelector);
     }
 }

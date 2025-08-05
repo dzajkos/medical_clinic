@@ -1,8 +1,8 @@
 package com.dzajkos.medical_clinic.service;
 
 import com.dzajkos.medical_clinic.exception.IdCardChangeNotAllowed;
-import com.dzajkos.medical_clinic.exception.PatientAlreadyExists;
-import com.dzajkos.medical_clinic.exception.PatientNotFound;
+import com.dzajkos.medical_clinic.exception.AlreadyExists;
+import com.dzajkos.medical_clinic.exception.NotFound;
 import com.dzajkos.medical_clinic.exception.ValueIsNull;
 import com.dzajkos.medical_clinic.model.Patient;
 import com.dzajkos.medical_clinic.repository.PatientRepository;
@@ -24,12 +24,12 @@ public class PatientService {
 
     public Patient getPatient(String email) {
         return patientRepository.findByEmail(email)
-                .orElseThrow(() -> new PatientNotFound("Patient with given email does not exist.", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new NotFound("Patient with given email does not exist.", HttpStatus.NOT_FOUND));
     }
 
     public Patient addPatient(Patient patient) {
         if (patientRepository.findByEmail(patient.getEmail()).isPresent()) {
-            throw new PatientAlreadyExists("Patient already exists", HttpStatus.CONFLICT);
+            throw new AlreadyExists("Patient already exists", HttpStatus.CONFLICT);
         }
         return patientRepository.save(patient);
     }
@@ -59,11 +59,15 @@ public class PatientService {
 
     public Patient changePassword(String email, String newPassword) {
         Patient patient = patientRepository.findByEmail(email)
-                .orElseThrow(() -> new PatientNotFound("Patient not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new NotFound("Patient not found", HttpStatus.NOT_FOUND));
         if (newPassword == null) {
             throw new ValueIsNull("Password is null", HttpStatus.CONFLICT);
         }
         patient.setPassword(newPassword);
         return patientRepository.save(patient);
+    }
+
+    public void batchDeletePatients(PatientSelector patientSelector) {
+        patientRepository.deleteAllById(patientSelector.getPatientIDs());
     }
 }
