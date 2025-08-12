@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,8 +31,9 @@ public class ClinicController {
     @Operation(summary = "Get list of all clinics")
     @ApiResponse(responseCode = "200", description = "Got list of clinics (even if empty)")
     @GetMapping
-    public List<ClinicDTO> getClinics() {
-        return clinicService.getClinics().stream()
+    public List<ClinicDTO> getClinics(@RequestParam("page") Integer page, @RequestParam("size") Integer size) {
+        Pageable pageAndSize = PageRequest.of(page, size);
+        return clinicService.getClinics(pageAndSize).stream()
                 .map(clinicMapper::clinicToDTO)
                 .toList();
     }

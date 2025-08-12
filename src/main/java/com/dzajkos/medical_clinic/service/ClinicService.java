@@ -6,6 +6,8 @@ import com.dzajkos.medical_clinic.model.Clinic;
 import com.dzajkos.medical_clinic.model.Doctor;
 import com.dzajkos.medical_clinic.repository.ClinicRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +19,8 @@ public class ClinicService {
 
     private final ClinicRepository clinicRepository;
 
-    public List<Clinic> getClinics() {
-        return clinicRepository.findAll();
+    public Page<Clinic> getClinics(Pageable pageable) {
+        return clinicRepository.findAll(pageable);
     }
 
     public Clinic getClinic(String name) {

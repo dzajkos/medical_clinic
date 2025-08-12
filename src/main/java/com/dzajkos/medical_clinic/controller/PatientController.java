@@ -2,6 +2,7 @@ package com.dzajkos.medical_clinic.controller;
 
 import com.dzajkos.medical_clinic.mapper.PatientMapper;
 import com.dzajkos.medical_clinic.model.CreatePatientCommand;
+import com.dzajkos.medical_clinic.model.PageDTO;
 import com.dzajkos.medical_clinic.model.Patient;
 import com.dzajkos.medical_clinic.model.PatientDTO;
 import com.dzajkos.medical_clinic.service.PatientSelector;
@@ -13,6 +14,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,10 +36,10 @@ public class PatientController {
     @Operation(summary = "Get list of all patients")
     @ApiResponse(responseCode = "200", description = "Got list of patients (even if empty)")
     @GetMapping
-    public List<PatientDTO> getPatients() {
-        return patientService.getPatients().stream()
-                .map(patientMapper::patientToDTO)
-                .toList();
+    public PageDTO<Patient> getPatients(@RequestParam("page") Integer page, @RequestParam("size") Integer size) {
+        Pageable pageAndSize = PageRequest.of(page, size);
+        Page<Patient> patientPage = patientService.getPatients(pageAndSize);
+        return new PageDTO<>(patientPage);
     }
 
     @Tag(name = "find")
@@ -70,7 +74,7 @@ public class PatientController {
     }
 
     @Tag(name = "update")
-    @Operation(summary = "replaces Patient")
+    @Operation(summary = "Replaces Patient")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Patient replaced",
                     content = {@Content(mediaType = "application/json",
@@ -88,7 +92,7 @@ public class PatientController {
     }
 
     @Tag(name = "delete")
-    @Operation(summary = "deletes Patient")
+    @Operation(summary = "Deletes Patient")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Patient replaced"),
             @ApiResponse(responseCode = "404", description = "Patient not found",
@@ -102,7 +106,7 @@ public class PatientController {
     }
 
     @Tag(name = "update")
-    @Operation(summary = "updates Patient password")
+    @Operation(summary = "Updates Patient password")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "password updated",
                     content = {@Content(mediaType = "application/json",

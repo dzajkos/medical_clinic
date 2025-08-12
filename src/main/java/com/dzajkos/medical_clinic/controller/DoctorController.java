@@ -15,6 +15,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,7 +27,6 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/doctors")
-
 public class DoctorController {
     private final DoctorService doctorService;
     private final DoctorMapper doctorMapper;
@@ -35,8 +36,9 @@ public class DoctorController {
     @Operation(summary = "Get list of all doctors")
     @ApiResponse(responseCode = "200", description = "Got list of doctors (even if empty)")
     @GetMapping
-    public List<DoctorDTO> getDoctors() {
-        return doctorService.getDoctors().stream()
+    public List<DoctorDTO> getDoctors(@RequestParam("page") Integer page, @RequestParam("size") Integer size) {
+        Pageable pageAndSize = PageRequest.of(page, size);
+        return doctorService.getDoctors(pageAndSize).stream()
                 .map(doctorMapper::doctorToDTO)
                 .toList();
     }

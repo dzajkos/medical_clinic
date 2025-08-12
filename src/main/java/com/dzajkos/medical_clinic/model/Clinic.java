@@ -23,5 +23,32 @@ public class Clinic {
     private String street;
     private String buildingNo;
     @ManyToMany(mappedBy = "clinics")
-    List<Doctor> doctors;
+    private List<Doctor> doctors;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Clinic other)) return false;
+
+        return id != null &&
+                id.equals(other.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Clinic{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", city='" + city + '\'' +
+                ", postalCode='" + postalCode + '\'' +
+                ", street='" + street + '\'' +
+                ", buildingNo='" + buildingNo + '\'' +
+                ", doctors=" + doctors.stream().map(Doctor::getId) +
+                '}';
+    }
 }
