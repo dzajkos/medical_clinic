@@ -36,10 +36,8 @@ public class PatientController {
     @Operation(summary = "Get list of all patients")
     @ApiResponse(responseCode = "200", description = "Got list of patients (even if empty)")
     @GetMapping
-    public PageDTO<Patient> getPatients(@RequestParam("page") Integer page, @RequestParam("size") Integer size) {
-        Pageable pageAndSize = PageRequest.of(page, size);
-        Page<Patient> patientPage = patientService.getPatients(pageAndSize);
-        return new PageDTO<>(patientPage);
+    public PageDTO<PatientDTO> getPatients(Pageable pageable) {
+        return patientService.getPatients(pageable);
     }
 
     @Tag(name = "find")

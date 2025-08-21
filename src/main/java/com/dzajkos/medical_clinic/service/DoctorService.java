@@ -2,10 +2,8 @@ package com.dzajkos.medical_clinic.service;
 
 import com.dzajkos.medical_clinic.exception.AlreadyExists;
 import com.dzajkos.medical_clinic.exception.NotFound;
-import com.dzajkos.medical_clinic.model.Clinic;
-import com.dzajkos.medical_clinic.model.ClinicDTO;
-import com.dzajkos.medical_clinic.model.Doctor;
-import com.dzajkos.medical_clinic.model.Patient;
+import com.dzajkos.medical_clinic.mapper.DoctorMapper;
+import com.dzajkos.medical_clinic.model.*;
 import com.dzajkos.medical_clinic.repository.ClinicRepository;
 import com.dzajkos.medical_clinic.repository.DoctorRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +20,10 @@ public class DoctorService {
 
     private final DoctorRepository doctorRepository;
     private final ClinicRepository clinicRepository;
+    private final DoctorMapper doctorMapper;
 
-    public Page<Doctor> getDoctors(Pageable pageable) {
-        return doctorRepository.findAll(pageable);
+    public PageDTO<DoctorDTO> getDoctors(Pageable pageable) {
+        return PageDTO.from(doctorRepository.findAll(pageable), doctorMapper::doctorToDTO);
     }
 
     public Doctor getDoctor(String email) {

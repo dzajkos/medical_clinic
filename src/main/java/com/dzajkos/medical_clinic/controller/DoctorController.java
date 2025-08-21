@@ -2,10 +2,7 @@ package com.dzajkos.medical_clinic.controller;
 
 import com.dzajkos.medical_clinic.mapper.ClinicMapper;
 import com.dzajkos.medical_clinic.mapper.DoctorMapper;
-import com.dzajkos.medical_clinic.model.Clinic;
-import com.dzajkos.medical_clinic.model.ClinicDTO;
-import com.dzajkos.medical_clinic.model.CreateDoctorCommand;
-import com.dzajkos.medical_clinic.model.DoctorDTO;
+import com.dzajkos.medical_clinic.model.*;
 import com.dzajkos.medical_clinic.service.ClinicSelector;
 import com.dzajkos.medical_clinic.service.DoctorService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,11 +33,8 @@ public class DoctorController {
     @Operation(summary = "Get list of all doctors")
     @ApiResponse(responseCode = "200", description = "Got list of doctors (even if empty)")
     @GetMapping
-    public List<DoctorDTO> getDoctors(@RequestParam("page") Integer page, @RequestParam("size") Integer size) {
-        Pageable pageAndSize = PageRequest.of(page, size);
-        return doctorService.getDoctors(pageAndSize).stream()
-                .map(doctorMapper::doctorToDTO)
-                .toList();
+    public PageDTO<DoctorDTO> getDoctors(Pageable pageable) {
+        return doctorService.getDoctors(pageable);
     }
 
     @Tag(name = "find")

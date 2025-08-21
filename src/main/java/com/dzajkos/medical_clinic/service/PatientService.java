@@ -4,7 +4,10 @@ import com.dzajkos.medical_clinic.exception.IdCardChangeNotAllowed;
 import com.dzajkos.medical_clinic.exception.AlreadyExists;
 import com.dzajkos.medical_clinic.exception.NotFound;
 import com.dzajkos.medical_clinic.exception.ValueIsNull;
+import com.dzajkos.medical_clinic.mapper.PatientMapper;
+import com.dzajkos.medical_clinic.model.PageDTO;
 import com.dzajkos.medical_clinic.model.Patient;
+import com.dzajkos.medical_clinic.model.PatientDTO;
 import com.dzajkos.medical_clinic.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,9 +22,10 @@ import java.util.List;
 public class PatientService {
 
     private final PatientRepository patientRepository;
+    private final PatientMapper patientMapper;
 
-    public Page<Patient> getPatients(Pageable pageable) {
-        return patientRepository.findAll(pageable);
+    public PageDTO<PatientDTO> getPatients(Pageable pageable) {
+        return PageDTO.from(patientRepository.findAll(pageable), patientMapper::patientToDTO);
     }
 
     public Patient getPatient(String email) {

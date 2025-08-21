@@ -3,6 +3,7 @@ package com.dzajkos.medical_clinic.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,6 +28,14 @@ public class Doctor {
             joinColumns = @JoinColumn(name = "doctor_id"),
             inverseJoinColumns = @JoinColumn(name = "clinic_id"))
     private List<Clinic> clinics;
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Visit> visits;
+
+    public boolean hasConflictingVisit(LocalDateTime start, LocalDateTime end) {
+        return visits.stream()
+                .anyMatch(visit -> visit.getStartDateTime().isBefore(end) &&
+                        visit.getEndDateTime().isAfter(start));
+    }
 
     @Override
     public boolean equals(Object o) {

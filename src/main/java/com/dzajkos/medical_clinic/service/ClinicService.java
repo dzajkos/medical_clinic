@@ -2,8 +2,11 @@ package com.dzajkos.medical_clinic.service;
 
 import com.dzajkos.medical_clinic.exception.AlreadyExists;
 import com.dzajkos.medical_clinic.exception.NotFound;
+import com.dzajkos.medical_clinic.mapper.ClinicMapper;
 import com.dzajkos.medical_clinic.model.Clinic;
+import com.dzajkos.medical_clinic.model.ClinicDTO;
 import com.dzajkos.medical_clinic.model.Doctor;
+import com.dzajkos.medical_clinic.model.PageDTO;
 import com.dzajkos.medical_clinic.repository.ClinicRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,9 +21,10 @@ import java.util.List;
 public class ClinicService {
 
     private final ClinicRepository clinicRepository;
+    private final ClinicMapper clinicMapper;
 
-    public Page<Clinic> getClinics(Pageable pageable) {
-        return clinicRepository.findAll(pageable);
+    public PageDTO<ClinicDTO> getClinics(Pageable pageable) {
+        return PageDTO.from(clinicRepository.findAll(pageable), clinicMapper::clinicToDTO);
     }
 
     public Clinic getClinic(String name) {
