@@ -25,4 +25,12 @@ public class Visit {
     @JoinColumn(name = "patient_id")
     private Patient patient;
 
+    public static Visit from (LocalDateTime start, LocalDateTime end, Doctor doctor) {
+        Visit visit = new Visit();
+        visit.setStartDateTime(start);
+        visit.setEndDateTime(end);
+        visit.setDoctor(doctor);
+        return visit;
+    }
+
 }

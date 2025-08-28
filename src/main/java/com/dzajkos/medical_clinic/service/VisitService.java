@@ -2,6 +2,7 @@ package com.dzajkos.medical_clinic.service;
 
 import com.dzajkos.medical_clinic.exception.AlreadyAssigned;
 import com.dzajkos.medical_clinic.exception.NotFound;
+import com.dzajkos.medical_clinic.exception.VisitDateTimeException;
 import com.dzajkos.medical_clinic.model.CreateVisitCommand;
 import com.dzajkos.medical_clinic.model.Doctor;
 import com.dzajkos.medical_clinic.model.Visit;
@@ -26,26 +27,15 @@ public class VisitService {
         LocalDateTime start = createVisitCommand.getStartDateTime();
         LocalDateTime end = createVisitCommand.getEndDateTime();
 
-        if (start.isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Visit can't be set in the past");
-        }
-        if (!end.isAfter(start)) {
-            throw new IllegalArgumentException("Visit end time must be after start time");
-        }
-        if (start.getMinute() % 15 != 0) {
-            throw new IllegalArgumentException("Visit time can only be set in equal 15 minute intervals");
-        }
+        VisitValidator.validateNewVisit(start, end);
 
         Doctor doctor = doctorRepository.findById(createVisitCommand.getDoctorID())
                 .orElseThrow(() -> new NotFound("Doctor with given email does not exist.", HttpStatus.NOT_FOUND));
 
-        if (doctor.hasConflictingVisit(start, end)) {
-            throw new IllegalStateException("Doctor already has a visit during this time slot");
+        if (!visitRepository.findConflictingVisits(doctor.getId(), start, end).isEmpty()) {
+            throw new VisitDateTimeException("Doctor already has a visit during this time slot", HttpStatus.CONFLICT);
         }
-        Visit visit = new Visit();
-        visit.setStartDateTime(start);
-        visit.setEndDateTime(end);
-        visit.setDoctor(doctor);
+        Visit visit = Visit.from(start, end, doctor);
         return visitRepository.save(visit);
     }
 

@@ -31,12 +31,6 @@ public class Doctor {
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Visit> visits;
 
-    public boolean hasConflictingVisit(LocalDateTime start, LocalDateTime end) {
-        return visits.stream()
-                .anyMatch(visit -> visit.getStartDateTime().isBefore(end) &&
-                        visit.getEndDateTime().isAfter(start));
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
