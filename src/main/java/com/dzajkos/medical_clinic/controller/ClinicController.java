@@ -47,7 +47,7 @@ public class ClinicController {
                             schema = @Schema(implementation = ErrorMessage.class))})
     })
     @GetMapping("/{name}")
-    public ClinicDTO getClinicByEmail(@PathVariable("name") String name) {
+    public ClinicDTO getClinicByName(@PathVariable("name") String name) {
         return clinicMapper.clinicToDTO(clinicService.getClinic(name));
     }
 

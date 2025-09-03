@@ -60,7 +60,8 @@ public class PatientService {
     }
 
     public void deletePatient(String email) {
-        patientRepository.delete(getPatient(email));
+        patientRepository.delete(patientRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFound("Patient with given email does not exist.", HttpStatus.NOT_FOUND)));
     }
 
     public Patient changePassword(String email, String newPassword) {

@@ -1,5 +1,6 @@
 package com.dzajkos.medical_clinic.service;
 
+import com.dzajkos.medical_clinic.exception.NotFound;
 import com.dzajkos.medical_clinic.mapper.ClinicMapper;
 import com.dzajkos.medical_clinic.model.Clinic;
 import com.dzajkos.medical_clinic.model.ClinicDTO;
@@ -14,14 +15,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ClinicServiceTest {
 
@@ -133,6 +134,36 @@ public class ClinicServiceTest {
         assertAll(
                 () -> assertEquals("clinicName1", result.getName()),
                 () -> assertEquals("clinicStreet", result.getStreet())
+        );
+    }
+
+    @Test
+    void deleteClinic_whenClinicExists_ShouldDeleteClinic() {
+        String name = "clinicName";
+        Clinic clinic = Clinic.builder()
+                .id(1L)
+                .name("clinicName")
+                .street("clinicStreet")
+                .city("clinicCity")
+                .postalCode("01-001")
+                .build();
+        when(clinicRepository.findByName(name)).thenReturn(Optional.of(clinic));
+
+        clinicService.deleteClinic(name);
+
+        verify(clinicRepository, times(1)).delete(clinic);
+    }
+
+    @Test
+    void deleteClinic_WhenClinicDoesntExist_ShouldThrowNotFoundException() {
+        String name = "nonExistentClinic";
+        when(clinicRepository.findByName(name)).thenReturn(Optional.empty());
+
+        NotFound exception = assertThrows(NotFound.class, () -> clinicService.deleteClinic(name));
+
+        assertAll(
+                () -> assertEquals("Clinic with given name not found", exception.getMessage()),
+                () -> assertEquals(HttpStatus.NOT_FOUND, exception.getStatus())
         );
     }
 }

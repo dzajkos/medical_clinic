@@ -14,18 +14,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -133,11 +130,33 @@ public class PatientServiceTest {
     }
 
     @Test
+    void getPatient_WhenEmailDoesntExist_ShouldThrowNotFoundException () {
+        String email = "NieMaTakiego@example.com";
+        Patient patient = Patient.builder()
+                .id(1L)
+                .email("jan.kowalski1@example.com")
+                .password("stareHaslo")
+                .idCardNo("ABC123456")
+                .firstName("Jan")
+                .lastName("Kowalski")
+                .phoneNumber("600700800")
+                .birthday(LocalDate.of(1990, 5, 15))
+                .build();
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        NotFound exception = assertThrows(NotFound.class, () -> patientService.getPatient(email));
+
+        assertAll(
+                () -> assertEquals("Patient with given email does not exist.", exception.getMessage()),
+                () -> assertEquals(HttpStatus.NOT_FOUND, exception. getStatus())
+        );
+    }
+
+    @Test
     void addPatient_WhenGivenPatientHasUniqueEmail_shouldAddAndReturnPatient() {
 
         // given
         Patient patient = Patient.builder()
-                .id(1L)
                 .email("jan.kowalski1@example.com")
                 .password("stareHaslo")
                 .idCardNo("ABC123456")
@@ -163,8 +182,28 @@ public class PatientServiceTest {
     }
 
     @Test
-    void changePassword_WhenGivenCorrectEmailAndPasswordIsNotNull_ShouldUpdatePasswordAndReturnPatient() {
+    void addPatient_WhenEmailIsTaken_ShouldThrowAlreadyExistsException() {
+        Patient patient = Patient.builder()
+                .email("jan.kowalski1@example.com")
+                .password("stareHaslo")
+                .idCardNo("ABC123456")
+                .firstName("Jan")
+                .lastName("Kowalski")
+                .phoneNumber("600700800")
+                .birthday(LocalDate.of(1990, 5, 15))
+                .build();
+        when(patientRepository.findByEmail(patient.getEmail())).thenReturn(Optional.of(patient));
 
+        AlreadyExists exception = assertThrows(AlreadyExists.class, () -> patientService.addPatient(patient));
+
+        assertAll(
+                () -> assertEquals("Patient already exists", exception.getMessage()),
+                () -> assertEquals(HttpStatus.CONFLICT, exception.getStatus())
+        );
+    }
+
+    @Test
+    void changePassword_WhenGivenCorrectEmailAndPasswordIsNotNull_ShouldUpdatePasswordAndReturnPatient() {
         //given
         Patient patient = Patient.builder()
                 .id(1L)
@@ -188,6 +227,45 @@ public class PatientServiceTest {
         assertAll(
                 () -> assertEquals("noweHaslo", result.getPassword()),
                 () -> assertEquals(1L, result.getId())
+        );
+    }
+
+    @Test
+    void changePassword_WhenEmailDoesntExist_ShouldThrowNotFoundException() {
+        String email = "jan.kowalski1@example.com";
+        String newPassword = "noweHaslo";
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        NotFound exception = assertThrows(NotFound.class, () -> patientService.changePassword(email, newPassword));
+
+        assertAll(
+                () -> assertEquals("Patient not found", exception.getMessage()),
+                () -> assertEquals(HttpStatus.NOT_FOUND, exception.getStatus())
+        );
+    }
+
+    @Test
+    void changePassword_WhenPasswordIsNull_ShouldThrowValueIsNullException() {
+        String email = "jan.kowalski1@example.com";
+        String newPassword = null;
+        Patient patient = Patient.builder()
+                .id(1L)
+                .email("jan.kowalski1@example.com")
+                .password("stareHaslo")
+                .idCardNo("ABC123456")
+                .firstName("Jan")
+                .lastName("Kowalski")
+                .phoneNumber("600700800")
+                .birthday(LocalDate.of(1990, 5, 15))
+                .build();
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(patient));
+
+
+        ValueIsNull exception = assertThrows(ValueIsNull.class, () -> patientService.changePassword(email, newPassword));
+
+        assertAll(
+                () -> assertEquals("Password is null", exception.getMessage()),
+                () -> assertEquals(HttpStatus.CONFLICT, exception.getStatus())
         );
     }
 
@@ -247,7 +325,12 @@ public class PatientServiceTest {
         when(patientRepository.findByEmail(email)).thenReturn(Optional.empty());
 
         // then
-        assertThrows(NotFound.class, () -> patientService.updatePatient(email, updatedPatient));
+        NotFound exception = assertThrows(NotFound.class, () -> patientService.updatePatient(email, updatedPatient));
+
+        assertAll(
+                () -> assertEquals("Patient with given email does not exist.", exception.getMessage()),
+                () -> assertEquals(HttpStatus.NOT_FOUND, exception.getStatus())
+        );
     }
 
     @Test
@@ -278,8 +361,13 @@ public class PatientServiceTest {
         updatedPatient.setIdCardNo("INNY123");
 
         // then
-        assertThrows(IdCardChangeNotAllowed.class,
+        IdCardChangeNotAllowed exception = assertThrows(IdCardChangeNotAllowed.class,
                 () -> patientService.updatePatient(email, updatedPatient));
+
+        assertAll(
+                () -> assertEquals("Can't change ID card number", exception.getMessage()),
+                () -> assertEquals(HttpStatus.CONFLICT, exception.getStatus())
+        );
     }
 
     @Test
@@ -322,8 +410,13 @@ public class PatientServiceTest {
         when(patientRepository.findByEmail(updatedPatient.getEmail())).thenReturn(Optional.of(anotherPatient));
 
         // then
-        assertThrows(AlreadyExists.class,
+        AlreadyExists exception = assertThrows(AlreadyExists.class,
                 () -> patientService.updatePatient(email, updatedPatient));
+
+        assertAll(
+                () -> assertEquals("Patient with given email already exists", exception.getMessage()),
+                () -> assertEquals(HttpStatus.CONFLICT, exception.getStatus())
+        );
     }
 
     @Test
@@ -346,19 +439,63 @@ public class PatientServiceTest {
                 .password("noweHaslo")
                 .idCardNo("ABC123456") // must match original
                 .firstName("Janusz")
-                .lastName("Kowalski")
+                .lastName(null)
                 .phoneNumber("600800900")
                 .birthday(LocalDate.of(1990, 5, 15))
                 .build();
 
         when(patientRepository.findByEmail(email)).thenReturn(Optional.of(originalPatient));
-        when(patientRepository.findByEmail(updatedPatient.getEmail())).thenReturn(Optional.empty());
-
-        // when
-        updatedPatient.setPhoneNumber(null);
 
         // then
-        assertThrows(ValueIsNull.class,
+        ValueIsNull exception = assertThrows(ValueIsNull.class,
                 () -> patientService.updatePatient(email, updatedPatient));
+
+        assertAll(
+                () -> assertEquals("Can't change value to null", exception.getMessage()),
+                () -> assertEquals(HttpStatus.CONFLICT, exception.getStatus())
+        );
     }
+
+    @Test
+    void deletePatient_WhenPatientExists_ShouldDeletePatient() {
+        String email = "jan.kowalski@example.com";
+        Patient patient = Patient.builder()
+                .id(1L)
+                .email("jan.kowalski@example.com")
+                .password("stareHaslo")
+                .idCardNo("ABC123456")
+                .firstName("Jan")
+                .lastName("Kowalski")
+                .phoneNumber("600700800")
+                .birthday(LocalDate.of(1990, 5, 15))
+                .build();
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(patient));
+
+        patientService.deletePatient(email);
+
+        verify(patientRepository, times(1)).delete(patient);
+    }
+
+    @Test
+    void deletePatient_WhenPatientDoesntExist_ShouldThrowNotFoundException() {
+        String email = "nieMaTakiego@example.com";
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        NotFound exception = assertThrows(NotFound.class, () -> patientService.deletePatient(email));
+
+        assertAll(
+                () -> assertEquals("Patient with given email does not exist.", exception.getMessage()),
+                () -> assertEquals(HttpStatus.NOT_FOUND, exception.getStatus())
+        );
+    }
+
+    @Test
+    void batchDeletePatients_WhenGivenPatientSelector_ShouldDeleteSelectedPatients() {
+        PatientSelector patientSelector = new PatientSelector(List.of(1L, 2L));
+
+        patientService.batchDeletePatients(patientSelector);
+
+        verify(patientRepository, times(1)).deleteAllById(patientSelector.getPatientIDs());
+    }
+
 }

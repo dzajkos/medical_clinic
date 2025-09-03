@@ -1,5 +1,6 @@
 package com.dzajkos.medical_clinic.service;
 
+import com.dzajkos.medical_clinic.exception.NotFound;
 import com.dzajkos.medical_clinic.mapper.DoctorMapper;
 import com.dzajkos.medical_clinic.model.*;
 import com.dzajkos.medical_clinic.model.Doctor;
@@ -14,16 +15,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DoctorServiceTest {
 
@@ -167,6 +168,35 @@ public class DoctorServiceTest {
                 () -> assertEquals(1L, result.getId()),
                 () -> assertEquals("clinicName", doctor.getClinics().getFirst().getName()),
                 () -> assertEquals(1L, doctor.getClinics().getFirst().getId())
+        );
+    }
+
+    @Test
+    void deleteDoctor_WhenDoctorExists_ShouldDeleteDoctor() {
+        String email = "doktorKowalski@example.com";
+        Doctor doctor = Doctor.builder()
+                .id(1L)
+                .email("doktorKowalski@example.com")
+                .firstName("Jan")
+                .lastName("Kowalski")
+                .build();
+        when(doctorRepository.findByEmail(email)).thenReturn(Optional.of(doctor));
+
+        doctorService.deleteDoctor(email);
+
+        verify(doctorRepository, times(1)).delete(doctor);
+    }
+
+    @Test
+    void deleteDoctor_WhenDoctorDoesntExist_ShouldThrowNotFoundException() {
+        String email = "nieMaTakiego@example.com";
+        when(doctorRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        NotFound exception = assertThrows(NotFound.class, () -> doctorService.deleteDoctor(email));
+
+        assertAll(
+                () -> assertEquals("Doctor with given email not found", exception.getMessage()),
+                () -> assertEquals(HttpStatus.NOT_FOUND, exception.getStatus())
         );
     }
 }
