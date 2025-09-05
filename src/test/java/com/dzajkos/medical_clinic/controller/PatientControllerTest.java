@@ -88,8 +88,7 @@ public class PatientControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/patients")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(patient))
-                )
+                        .content(objectMapper.writeValueAsString(patient)))
                 .andExpectAll(
                         status().isCreated(),
                         jsonPath("$.id").value(1L),
@@ -99,11 +98,6 @@ public class PatientControllerTest {
 
     @Test
     void updatePatient_ReplacesPatient() throws Exception {
-        Patient originalPatient = Patient.builder()
-                .id(1L)
-                .email("kowalski1@example.com")
-                .firstName("Jan")
-                .build();
         Patient updatedPatient = Patient.builder()
                 .id(1L)
                 .email("kowalski1@example.com")
@@ -113,13 +107,11 @@ public class PatientControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.put("/patients/kowalski1@example.com")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedPatient))
-                )
+                        .content(objectMapper.writeValueAsString(updatedPatient)))
                 .andExpectAll(
                         status().isOk(),
                         jsonPath("$.id").value(1L),
-                        jsonPath("$.firstName").value("JanZmieniony")
-                );
+                        jsonPath("$.firstName").value("JanZmieniony"));
     }
 
     @Test
@@ -139,13 +131,11 @@ public class PatientControllerTest {
         when(patientService.changePassword(any(), any())).thenReturn(patientWithChangedPassword);
 
         mockMvc.perform(MockMvcRequestBuilders.patch("/patients/kowalski1@example.com")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(patientWithChangedPassword))
-        )
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(patientWithChangedPassword)))
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.id").value(1L)
-                );
+                        jsonPath("$.id").value(1L));
     }
 
     @Test

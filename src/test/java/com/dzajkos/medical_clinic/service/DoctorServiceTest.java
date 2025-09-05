@@ -17,7 +17,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -90,7 +89,6 @@ public class DoctorServiceTest {
 
     @Test
     void getDoctor_WhenGivenCorrectEmail_ShouldReturnDoctor() {
-
         // given
         String email = "jan.kowalski1@example.com";
         Doctor doctor = Doctor.builder()
@@ -114,7 +112,6 @@ public class DoctorServiceTest {
 
     @Test
     void addDoctor_WhenGivenDoctorHasUniqueEmail_shouldAddAndReturnDoctor() {
-
         // given
         Doctor doctor = Doctor.builder()
                 .email("jan.kowalski1@example.com")
@@ -123,7 +120,7 @@ public class DoctorServiceTest {
                 .lastName("Kowalski")
                 .build();
         when(doctorRepository.findByEmail(doctor.getEmail())).thenReturn(Optional.empty());
-        when(doctorRepository.save(any(Doctor.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(doctorRepository.save(any(Doctor.class))).thenReturn(doctor);
 
         // when
         Doctor result = doctorService.addDoctor(doctor);
@@ -157,7 +154,7 @@ public class DoctorServiceTest {
                 .build();
         when(doctorRepository.findByEmail(email)).thenReturn(Optional.of(doctor));
         when(clinicRepository.findByName(name)).thenReturn(Optional.of(clinic));
-        when(doctorRepository.save(any(Doctor.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(doctorRepository.save(any(Doctor.class))).thenReturn(doctor);
 
         // when
         Clinic result = doctorService.assignClinic(email, name);

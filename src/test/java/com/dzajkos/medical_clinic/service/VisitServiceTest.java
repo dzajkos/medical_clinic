@@ -10,7 +10,6 @@ import com.dzajkos.medical_clinic.repository.VisitRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.junit.jupiter.api.Assertions;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -42,7 +41,7 @@ public class VisitServiceTest {
         CreateVisitCommand createVisitCommand = CreateVisitCommand.builder()
                 .startDateTime(LocalDateTime.now().withMinute(0).plusHours(2))
                 .endDateTime(LocalDateTime.now().withMinute(0).plusHours(3))
-                .doctorID(1L)
+                .doctorId(1L)
                 .build();
         Doctor doctor = Doctor.builder()
                 .id(1L)
@@ -52,7 +51,7 @@ public class VisitServiceTest {
                 .lastName("Kowalski")
                 .clinics(new ArrayList<>())
                 .build();
-        when(doctorRepository.findById(createVisitCommand.getDoctorID())).thenReturn(Optional.of(doctor));
+        when(doctorRepository.findById(createVisitCommand.getDoctorId())).thenReturn(Optional.of(doctor));
         when(visitRepository.findConflictingVisits(any(), any(), any())).thenReturn(new ArrayList<>());
         when(visitRepository.save(any(Visit.class))).thenAnswer(inv -> inv.getArgument(0));
 
@@ -96,7 +95,7 @@ public class VisitServiceTest {
                 .build();
         when(visitRepository.findById(visitID)).thenReturn(Optional.of(visit));
         when(patientRepository.findById(patientID)).thenReturn(Optional.of(patient));
-        when(visitRepository.save(any(Visit.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(visitRepository.save(any(Visit.class))).thenReturn(visit);
 
         // when
         Visit result = visitService.assignPatient(visitID, patientID);

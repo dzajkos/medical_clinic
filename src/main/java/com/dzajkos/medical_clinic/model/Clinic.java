@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.util.List;
 
+@Table(name = "CLINICS")
 @Getter
 @AllArgsConstructor
 @Setter

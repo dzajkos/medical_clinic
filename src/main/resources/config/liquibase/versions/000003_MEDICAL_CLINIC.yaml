@@ -1,0 +1,47 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: Ja
+      changes:
+        - createTable:
+            tableName: CLINICS
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+              - column:
+                  name: city
+                  type: varchar(255)
+              - column:
+                  name: postal_Code
+                  type: varchar(255)
+              - column:
+                  name: street
+                  type: varchar(255)
+              - column:
+                  name: building_No
+                  type: varchar(255)
+        - createTable:
+            tableName: CLINICS_DOCTORS
+            columns:
+              - column:
+                  name: doctor_id
+                  type: bigint
+                  constraints:
+                    foreignKey: true
+                    foreignKeyName: fk_clinic_doctor
+                    references: DOCTORS(id)
+              - column:
+                  name: clinic_id
+                  type: bigint
+                  constraints:
+                    foreignKey: true
+                    foreignKeyName: fk_doctor_clinic
+                    references: CLINICS(id)

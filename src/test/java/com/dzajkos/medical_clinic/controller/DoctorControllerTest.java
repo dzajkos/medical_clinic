@@ -89,14 +89,12 @@ public class DoctorControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/doctors")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(doctor))
-        )
+                .content(objectMapper.writeValueAsString(doctor)))
                 .andExpectAll(
                         status().isCreated(),
                         jsonPath("$.id").value(1L),
                         jsonPath("$.email").value("kowalski1@example.com"),
-                        jsonPath("$.firstName").value("Jan")
-                );
+                        jsonPath("$.firstName").value("Jan"));
     }
 
     @Test
@@ -117,13 +115,11 @@ public class DoctorControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.patch("/doctors/email")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(clinicSelector))
-        )
+                .content(objectMapper.writeValueAsString(clinicSelector)))
                 .andExpectAll(
                         status().isOk(),
                         jsonPath("$.id").value(1L),
                         jsonPath("$.name").value("clinicName"),
-                        jsonPath("$.city").value("clinicCity")
-                );
+                        jsonPath("$.city").value("clinicCity"));
     }
 }

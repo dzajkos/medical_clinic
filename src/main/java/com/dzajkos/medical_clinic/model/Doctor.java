@@ -3,10 +3,9 @@ package com.dzajkos.medical_clinic.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
+@Table(name = "DOCTORS")
 @Getter
 @AllArgsConstructor
 @Setter
@@ -24,7 +23,7 @@ public class Doctor {
     private String lastName;
     @ManyToMany
     @JoinTable(
-            name = "doctor_clinic",
+            name = "CLINICS_DOCTORS",
             joinColumns = @JoinColumn(name = "doctor_id"),
             inverseJoinColumns = @JoinColumn(name = "clinic_id"))
     private List<Clinic> clinics;

@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: Ja
+      changes:
+        - createTable:
+            tableName: DOCTORS
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    unique: true
+              - column:
+                  name: password
+                  type: varchar(255)
+              - column:
+                  name: first_Name
+                  type: varchar(255)
+              - column:
+                  name: last_Name
+                  type: varchar(255)

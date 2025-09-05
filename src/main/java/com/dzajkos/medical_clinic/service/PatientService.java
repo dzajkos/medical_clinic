@@ -10,12 +10,9 @@ import com.dzajkos.medical_clinic.model.Patient;
 import com.dzajkos.medical_clinic.model.PatientDTO;
 import com.dzajkos.medical_clinic.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -46,7 +43,6 @@ public class PatientService {
             throw new IdCardChangeNotAllowed("Can't change ID card number", HttpStatus.CONFLICT);
         }
         PatientValidator.nullCheck(updatedPatient);
-
         PatientValidator.emailCheck(email, updatedPatient, patientRepository);
 
         originalPatient.setPassword(updatedPatient.getPassword());
@@ -65,11 +61,11 @@ public class PatientService {
     }
 
     public Patient changePassword(String email, String newPassword) {
-        Patient patient = patientRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFound("Patient not found", HttpStatus.NOT_FOUND));
         if (newPassword == null) {
             throw new ValueIsNull("Password is null", HttpStatus.CONFLICT);
         }
+        Patient patient = patientRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFound("Patient not found", HttpStatus.NOT_FOUND));
         patient.setPassword(newPassword);
         return patientRepository.save(patient);
     }

@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Table(name = "VISITS")
 @Getter
 @AllArgsConstructor
 @Setter
@@ -25,7 +26,7 @@ public class Visit {
     @JoinColumn(name = "patient_id")
     private Patient patient;
 
-    public static Visit from (LocalDateTime start, LocalDateTime end, Doctor doctor) {
+    public static Visit from(LocalDateTime start, LocalDateTime end, Doctor doctor) {
         Visit visit = new Visit();
         visit.setStartDateTime(start);
         visit.setEndDateTime(end);

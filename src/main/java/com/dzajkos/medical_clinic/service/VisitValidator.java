@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class VisitValidator {
+public final class VisitValidator {
 
 
     public static void validateStart(LocalDateTime start) {

@@ -1,7 +1,6 @@
 package com.dzajkos.medical_clinic.controller;
 
 import com.dzajkos.medical_clinic.exception.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,7 +16,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorMessage> handleMedicalClinicException(MedicalClinicException exception) {
         return new ResponseEntity<>(new ErrorMessage(exception.getMessage(), exception.getStatus(), OffsetDateTime.now()), exception.getStatus());
     }
-
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

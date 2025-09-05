@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 public class CreateVisitCommand {
-    LocalDateTime startDateTime;
-    LocalDateTime endDateTime;
-    Long doctorID;
+    private LocalDateTime startDateTime;
+    private LocalDateTime endDateTime;
+    private Long doctorId;
 }

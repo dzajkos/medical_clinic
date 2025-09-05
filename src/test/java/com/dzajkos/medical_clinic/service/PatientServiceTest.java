@@ -12,10 +12,8 @@ import com.dzajkos.medical_clinic.repository.PatientRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -29,7 +27,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 public class PatientServiceTest {
 
     PatientService patientService;
@@ -132,16 +129,6 @@ public class PatientServiceTest {
     @Test
     void getPatient_WhenEmailDoesntExist_ShouldThrowNotFoundException () {
         String email = "NieMaTakiego@example.com";
-        Patient patient = Patient.builder()
-                .id(1L)
-                .email("jan.kowalski1@example.com")
-                .password("stareHaslo")
-                .idCardNo("ABC123456")
-                .firstName("Jan")
-                .lastName("Kowalski")
-                .phoneNumber("600700800")
-                .birthday(LocalDate.of(1990, 5, 15))
-                .build();
         when(patientRepository.findByEmail(email)).thenReturn(Optional.empty());
 
         NotFound exception = assertThrows(NotFound.class, () -> patientService.getPatient(email));
@@ -166,7 +153,7 @@ public class PatientServiceTest {
                 .birthday(LocalDate.of(1990, 5, 15))
                 .build();
         when(patientRepository.findByEmail(patient.getEmail())).thenReturn(Optional.empty());
-        when(patientRepository.save(any(Patient.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(patientRepository.save(any(Patient.class))).thenReturn(patient);
 
         // when
         Patient result = patientService.addPatient(patient);
@@ -218,7 +205,7 @@ public class PatientServiceTest {
         String email = "jan.kowalski1@example.com";
         String newPassword = "noweHaslo";
         when(patientRepository.findByEmail(email)).thenReturn(Optional.of(patient));
-        when(patientRepository.save(any(Patient.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(patientRepository.save(any(Patient.class))).thenReturn(patient);
 
         // when
         Patient result = patientService.changePassword(email, newPassword);
@@ -247,7 +234,6 @@ public class PatientServiceTest {
     @Test
     void changePassword_WhenPasswordIsNull_ShouldThrowValueIsNullException() {
         String email = "jan.kowalski1@example.com";
-        String newPassword = null;
         Patient patient = Patient.builder()
                 .id(1L)
                 .email("jan.kowalski1@example.com")
@@ -261,7 +247,7 @@ public class PatientServiceTest {
         when(patientRepository.findByEmail(email)).thenReturn(Optional.of(patient));
 
 
-        ValueIsNull exception = assertThrows(ValueIsNull.class, () -> patientService.changePassword(email, newPassword));
+        ValueIsNull exception = assertThrows(ValueIsNull.class, () -> patientService.changePassword(email, null));
 
         assertAll(
                 () -> assertEquals("Password is null", exception.getMessage()),
@@ -296,7 +282,7 @@ public class PatientServiceTest {
 
         when(patientRepository.findByEmail(email)).thenReturn(Optional.of(originalPatient));
         when(patientRepository.findByEmail(updatedPatient.getEmail())).thenReturn(Optional.empty());
-        when(patientRepository.save(any(Patient.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(patientRepository.save(any(Patient.class))).thenReturn(updatedPatient);
 
         // when
         Patient result = patientService.updatePatient(email, updatedPatient);

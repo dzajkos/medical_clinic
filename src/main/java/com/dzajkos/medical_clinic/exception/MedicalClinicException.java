@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public class MedicalClinicException extends RuntimeException {
-    public HttpStatus status;
+    private final HttpStatus status;
 
     public MedicalClinicException(String message, HttpStatus status) {
         super(message);

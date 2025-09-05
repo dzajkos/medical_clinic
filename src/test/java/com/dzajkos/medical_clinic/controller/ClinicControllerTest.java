@@ -87,14 +87,12 @@ public class ClinicControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/clinics")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(clinic))
-                )
+                        .content(objectMapper.writeValueAsString(clinic)))
                 .andExpectAll(
                         status().isCreated(),
                         jsonPath("$.id").value(1L),
                         jsonPath("$.name").value("clinicName1"),
-                        jsonPath("$.city").value("clinicCity")
-                );
+                        jsonPath("$.city").value("clinicCity"));
     }
 
     @Test

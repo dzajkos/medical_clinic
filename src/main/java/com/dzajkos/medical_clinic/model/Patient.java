@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 
+@Table(name = "PATIENTS")
 @Getter
 @AllArgsConstructor
 @Setter

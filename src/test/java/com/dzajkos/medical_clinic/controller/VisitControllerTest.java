@@ -1,6 +1,6 @@
 package com.dzajkos.medical_clinic.controller;
-import com.dzajkos.medical_clinic.model.CreateVisitCommand;
 import com.dzajkos.medical_clinic.model.Doctor;
+import com.dzajkos.medical_clinic.model.Patient;
 import com.dzajkos.medical_clinic.model.Visit;
 import com.dzajkos.medical_clinic.service.VisitService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,13 +46,40 @@ public class VisitControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/visit")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(visit))
-                )
+                        .content(objectMapper.writeValueAsString(visit)))
                 .andExpectAll(
                         status().isCreated(),
                         jsonPath("$.id").value(1L),
                         jsonPath("$.startDateTime").value(visit.getStartDateTime().toString()),
                         jsonPath("$.endDateTime").value(visit.getEndDateTime().toString())
+                );
+    }
+
+    @Test
+    void assignPatient_AssignsPatientToVisit() throws Exception {
+        Visit visit = Visit.builder()
+                .id(1L)
+                .startDateTime(LocalDateTime.now().withMinute(0).plusHours(2))
+                .endDateTime(LocalDateTime.now().withMinute(0).plusHours(3))
+                .doctor(Doctor.builder()
+                        .id(1L)
+                        .email("kowalskiDoctor@example.com")
+                        .firstName("JanDoctor")
+                        .build())
+                .patient(Patient.builder()
+                        .id(1L)
+                        .email("kowalskiPatient@example.com")
+                        .firstName("JanPatient")
+                        .build())
+                .build();
+        when(visitService.assignPatient(any(), any())).thenReturn(visit);
+        mockMvc.perform(MockMvcRequestBuilders.patch("/visit?visitID=1&patientID=1"))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.patient.id").value(1L),
+                        jsonPath("$.doctor.id").value(1L),
+                        jsonPath("$.doctor.firstName").value("JanDoctor"),
+                        jsonPath("$.patient.email").value("kowalskiPatient@example.com")
                 );
     }
 }

@@ -29,7 +29,7 @@ public class VisitService {
 
         VisitValidator.validateNewVisit(start, end);
 
-        Doctor doctor = doctorRepository.findById(createVisitCommand.getDoctorID())
+        Doctor doctor = doctorRepository.findById(createVisitCommand.getDoctorId())
                 .orElseThrow(() -> new NotFound("Doctor with given email does not exist.", HttpStatus.NOT_FOUND));
 
         if (!visitRepository.findConflictingVisits(doctor.getId(), start, end).isEmpty()) {

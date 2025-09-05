@@ -39,7 +39,6 @@ public class ClinicServiceTest {
 
     @Test
     void getClinics_WhenGivenPageable_ShouldReturnPageDTOofClinicDTO() {
-        // given
         Pageable pageable = PageRequest.of(0, 2);
         List<Clinic> clinicList = List.of(
                 Clinic.builder()
@@ -78,10 +77,8 @@ public class ClinicServiceTest {
         Page<Clinic> clinicPage = new PageImpl<Clinic>(clinicList);
         when(clinicRepository.findAll(pageable)).thenReturn(clinicPage);
 
-        // when
         PageDTO<ClinicDTO> result = clinicService.getClinics(pageable);
 
-        // then
         Assertions.assertAll(
                 () -> Assertions.assertEquals("clinicName4", result.getContent().getLast().name()),
                 () -> Assertions.assertEquals(4, result.getTotalElements())
@@ -90,8 +87,6 @@ public class ClinicServiceTest {
 
     @Test
     void getClinic_WhenGivenCorrectName_ShouldReturnClinic() {
-
-        // given
         String name = "clinicName1";
         Clinic clinic = Clinic.builder()
                 .id(1L)
@@ -103,10 +98,8 @@ public class ClinicServiceTest {
                 .build();
         when(clinicRepository.findByName(name)).thenReturn(Optional.of(clinic));
 
-        // when
         Clinic result = clinicService.getClinic(name);
 
-        // then
         assertAll(
                 () -> assertEquals(1L, result.getId()),
                 () -> assertEquals("clinicStreet", result.getStreet())
@@ -115,8 +108,6 @@ public class ClinicServiceTest {
 
     @Test
     void addClinic_WhenGivenClinicHasUniqueName_shouldAddAndReturnClinic() {
-
-        // given
         Clinic clinic = Clinic.builder()
                 .name("clinicName1")
                 .city("clinicCity")
@@ -125,12 +116,10 @@ public class ClinicServiceTest {
                 .buildingNo("10/15")
                 .build();
         when(clinicRepository.findByName(clinic.getName())).thenReturn(Optional.empty());
-        when(clinicRepository.save(any(Clinic.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(clinicRepository.save(any(Clinic.class))).thenReturn(clinic);
 
-        // when
         Clinic result = clinicService.addClinic(clinic);
 
-        // then
         assertAll(
                 () -> assertEquals("clinicName1", result.getName()),
                 () -> assertEquals("clinicStreet", result.getStreet())
