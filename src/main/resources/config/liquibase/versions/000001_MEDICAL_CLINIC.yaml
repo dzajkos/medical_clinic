@@ -22,16 +22,16 @@ databaseChangeLog:
                   name: password
                   type: varchar(255)
               - column:
-                  name: id_Card_No
+                  name: id_card_no
                   type: varchar(255)
               - column:
-                  name: first_Name
+                  name: first_name
                   type: varchar(255)
               - column:
-                  name: last_Name
+                  name: last_name
                   type: varchar(255)
               - column:
-                  name: phone_Number
+                  name: phone_number
                   type: varchar(255)
               - column:
                   name: birthday

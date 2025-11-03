@@ -20,13 +20,13 @@ databaseChangeLog:
                   name: city
                   type: varchar(255)
               - column:
-                  name: postal_Code
+                  name: postal_code
                   type: varchar(255)
               - column:
                   name: street
                   type: varchar(255)
               - column:
-                  name: building_No
+                  name: building_no
                   type: varchar(255)
         - createTable:
             tableName: CLINICS_DOCTORS

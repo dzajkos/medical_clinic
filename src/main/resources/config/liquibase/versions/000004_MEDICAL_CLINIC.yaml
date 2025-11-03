@@ -14,12 +14,12 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: start_Date_Time
+                  name: start_date_time
                   type: datetime
                   constraints:
                     nullable: false
               - column:
-                  name: end_Date_Time
+                  name: end_date_time
                   type: datetime
                   constraints:
                     nullable: false

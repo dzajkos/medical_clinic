@@ -2,6 +2,7 @@ package com.dzajkos.medical_clinic.service;
 
 import com.dzajkos.medical_clinic.exception.AlreadyExists;
 import com.dzajkos.medical_clinic.exception.NotFound;
+import com.dzajkos.medical_clinic.exception.ValueIsNull;
 import com.dzajkos.medical_clinic.mapper.DoctorMapper;
 import com.dzajkos.medical_clinic.model.*;
 import com.dzajkos.medical_clinic.repository.ClinicRepository;
@@ -49,5 +50,18 @@ public class DoctorService {
        doctor.getClinics().add(clinic);
        doctorRepository.save(doctor);
        return clinic;
+    }
+
+    public List<Doctor> getDoctorsBySpecialization(String specialization) {
+        if (specialization == null || specialization.isBlank()) {
+            throw new ValueIsNull("Specialization cannot be empty", HttpStatus.BAD_REQUEST);
+        }
+
+        List<Doctor> doctors = doctorRepository.findAllBySpecializationIgnoreCase(specialization);
+        if (doctors.isEmpty()) {
+            throw new NotFound("No doctors found for specialization: " + specialization, HttpStatus.NOT_FOUND);
+        }
+
+        return doctors;
     }
 }

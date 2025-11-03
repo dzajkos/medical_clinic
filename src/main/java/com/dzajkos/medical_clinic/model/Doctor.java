@@ -2,6 +2,7 @@ package com.dzajkos.medical_clinic.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.dialect.PostgreSQLDialect;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class Doctor {
     private String password;
     private String firstName;
     private String lastName;
+    private String specialization;
     @ManyToMany
     @JoinTable(
             name = "CLINICS_DOCTORS",
