@@ -30,63 +30,31 @@ public class VisitController {
         return visitMapper.visitToDTO(visit);
     }
 
-    @PutMapping
-    public VisitDTO assignPatient(String visitID, String patientID) {
+    @PostMapping("/{visitID}/book")
+    public VisitDTO book(@PathVariable String visitID, @RequestParam String patientID) {
         return visitMapper.visitToDTO(visitService.assignPatient(Long.parseLong(visitID), Long.parseLong(patientID)));
     }
 
-    @GetMapping
-    @RequestMapping("/patient/own")
-    public List<VisitDTO> getPatientOwnVisitList(String patientID) {
-        return visitService.getVisitsListOfPatient(Long.parseLong(patientID))
-                .stream()
-                .map(visitMapper::visitToDTO)
-                .toList();
-    }
-
-    @GetMapping
-    @RequestMapping("/patient/doctor")
-    public List<VisitDTO> getDoctorVisitList(String doctorID) {
-        return visitService.getVisitsListOfDoctor(Long.parseLong(doctorID))
-                .stream()
-                .map(visitMapper::visitToDTO)
-                .toList();
-    }
-
-    @GetMapping
-    @RequestMapping("/patient/specialization")
-    public List<VisitDTO> getSpecializationVisitList(
-            String specialization,
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return visitService.getVisitsForSpecialization(specialization, date)
-                .stream()
-                .map(visitMapper::visitToDTO)
-                .toList();
-    }
-
-    @GetMapping
-    @RequestMapping("/doctor/own")
-    public List<VisitDTO> getDoctorOwnVisitList(String doctorID) {
-        return  visitService.getOwnVisitsListOfDoctor(Long.parseLong(doctorID))
-                .stream()
-                .map(visitMapper::visitToDTO)
-                .toList();
-    }
-
-    @DeleteMapping
-    @RequestMapping("/doctor")
-    public VisitDTO deleteVisit(String visitID) {
+    @DeleteMapping("/{visitID}")
+    public VisitDTO deleteVisit(@PathVariable String visitID) {
         return visitMapper.visitToDTO(visitService.deleteVisit(Long.parseLong(visitID)));
     }
 
     @GetMapping("/search")
     public List<VisitDTO> search(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
             @RequestParam(required = false) String specialization,
-            @RequestParam(defaultValue = "false") boolean availableOnly) {
-
-        return visitService.searchVisits(from, to, specialization, availableOnly)
+            @RequestParam(required = false) Long patientId,
+            @RequestParam(required = false) Long doctorId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day,
+            @RequestParam(defaultValue = "false") boolean availableOnly,
+            @RequestParam(defaultValue = "true") boolean includePast
+    ) {
+        return visitService.searchVisits(
+                        from, to, specialization, availableOnly,
+                        patientId, doctorId, includePast, day
+                )
                 .stream()
                 .map(visitMapper::visitToDTO)
                 .toList();

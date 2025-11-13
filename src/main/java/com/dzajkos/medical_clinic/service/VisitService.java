@@ -10,6 +10,8 @@ import com.dzajkos.medical_clinic.repository.DoctorRepository;
 import com.dzajkos.medical_clinic.repository.PatientRepository;
 import com.dzajkos.medical_clinic.repository.VisitRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
+import com.dzajkos.medical_clinic.repository.VisitSpecifications;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -54,35 +56,6 @@ public class VisitService {
         return visit;
     }
 
-    public List<Visit> getVisitsListOfPatient(Long patientID) {
-        if (!patientRepository.existsById(patientID)) {
-            throw new NotFound("Patient with given ID not found", HttpStatus.NOT_FOUND);
-        }
-
-        return visitRepository.findAllByPatientId(patientID);
-    }
-
-    public List<Visit> getVisitsListOfDoctor(Long doctorID) {
-        if (!doctorRepository.existsById(doctorID)) {
-            throw new NotFound("Doctor with given ID not found", HttpStatus.NOT_FOUND);
-        }
-        return visitRepository.findAllByDoctorIdAndPatientIsNull(doctorID);
-    }
-
-    public List<Visit> getVisitsForSpecialization(String specialization, LocalDate day) {
-        LocalDateTime start = day.atStartOfDay();
-        LocalDateTime end = day.plusDays(1).atStartOfDay();
-
-        return visitRepository.findAvailableBySpecAndStartBetween(specialization, start, end);
-    }
-
-    public List<Visit> getOwnVisitsListOfDoctor(Long doctorID) {
-        if (!doctorRepository.existsById(doctorID)) {
-            throw new NotFound("Doctor with given ID not found", HttpStatus.NOT_FOUND);
-        }
-        return visitRepository.findAllByDoctorId(doctorID);
-    }
-
     public Visit deleteVisit(Long visitID) {
         Visit visit = visitRepository.findById(visitID)
                 .orElseThrow(() -> new NotFound("Visit with given ID not found", HttpStatus.NOT_FOUND));
@@ -90,14 +63,27 @@ public class VisitService {
         return visit;
     }
 
-    public List<Visit> searchVisits(LocalDateTime startAt,
-                                    LocalDateTime endAt,
-                                    @Nullable String specialization,
-                                    boolean availableOnly) {
-        if (startAt == null || endAt == null || !startAt.isBefore(endAt)) {
-            throw new NotFound("Invalid time range", HttpStatus.BAD_REQUEST);
-        }
-        String spec = (specialization == null || specialization.isBlank()) ? null : specialization;
-        return visitRepository.search(startAt, endAt, spec, availableOnly);
+    public List<Visit> searchVisits(
+            @Nullable LocalDateTime from,
+            @Nullable LocalDateTime to,
+            @Nullable String specialization,
+            boolean availableOnly,
+            @Nullable Long patientId,
+            @Nullable Long doctorId,
+            boolean includePast,
+            @Nullable LocalDate day
+    ) {
+        Specification<Visit> specification = Specification.allOf(
+                VisitSpecifications.onDay(day),
+                VisitSpecifications.startFrom(day == null ? from : null),
+                VisitSpecifications.startTo(day == null ? to : null),
+                VisitSpecifications.specialization(specialization),
+                VisitSpecifications.availableOnly(availableOnly),
+                VisitSpecifications.patientId(patientId),
+                VisitSpecifications.doctorId(doctorId),
+                VisitSpecifications.excludePast(includePast)
+        );
+
+        return visitRepository.findAll(specification);
     }
 }

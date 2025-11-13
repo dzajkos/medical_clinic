@@ -73,7 +73,7 @@ public class VisitControllerTest {
                         .build())
                 .build();
         when(visitService.assignPatient(any(), any())).thenReturn(visit);
-        mockMvc.perform(MockMvcRequestBuilders.patch("/visit?visitID=1&patientID=1"))
+        mockMvc.perform(MockMvcRequestBuilders.post("/visit/1/book?patientID=1"))
                 .andExpectAll(
                         status().isOk(),
                         jsonPath("$.patient.id").value(1L),

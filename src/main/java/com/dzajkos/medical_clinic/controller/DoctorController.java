@@ -98,8 +98,8 @@ public class DoctorController {
         return clinicMapper.clinicToDTO(doctorService.assignClinic(email, clinicSelector.getName()));
     }
 
-    @GetMapping("/specialization/{specialization}")
-    public List<DoctorDTO> getDoctorsListBySpecialization (@PathVariable("specialization") String specialization) {
+    @GetMapping("/search")
+    public List<DoctorDTO> getDoctorsListBySpecialization (@RequestParam String specialization) {
         return doctorService.getDoctorsBySpecialization(specialization)
                 .stream()
                 .map(doctorMapper::doctorToDTO)
