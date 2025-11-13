@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: db
+    environment:
+      POSTGRES_DB: medical-db
+      POSTGRES_USER: user123
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5274:5432"
+    volumes:
+      - medical-clinic-db:/var/lib/postgresql/data
+
+  medical-clinic:
+    build: .
+    container_name: medical-clinic
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+
+  clinic-proxy:
+    image: clinic-proxy
+    ports:
+      - "8081:8081"
+    environment:
+      - CLINIC_CORE_BASE_URL=http://medical-clinic:8080
+    depends_on:
+      - medical-clinic
+
+  pgAdmin:
+    image: dpage/pgadmin4:latest
+    container_name: medical_pg_admin
+    ports:
+      - "9080:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin@example.com
+      PGADMIN_DEFAULT_PASSWORD: password
+    volumes:
+      - medical-pgadmin-data:/var/lib/pgadmin
+
+volumes:
+  medical-clinic-db:
+  medical-pgadmin-data:

@@ -10,10 +10,15 @@ import com.dzajkos.medical_clinic.repository.DoctorRepository;
 import com.dzajkos.medical_clinic.repository.PatientRepository;
 import com.dzajkos.medical_clinic.repository.VisitRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
+import com.dzajkos.medical_clinic.repository.VisitSpecifications;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -49,5 +54,36 @@ public class VisitService {
                 .orElseThrow(() -> new NotFound("Patient with given ID not found", HttpStatus.NOT_FOUND)));
         visitRepository.save(visit);
         return visit;
+    }
+
+    public Visit deleteVisit(Long visitID) {
+        Visit visit = visitRepository.findById(visitID)
+                .orElseThrow(() -> new NotFound("Visit with given ID not found", HttpStatus.NOT_FOUND));
+        visitRepository.delete(visit);
+        return visit;
+    }
+
+    public List<Visit> searchVisits(
+            @Nullable LocalDateTime from,
+            @Nullable LocalDateTime to,
+            @Nullable String specialization,
+            boolean availableOnly,
+            @Nullable Long patientId,
+            @Nullable Long doctorId,
+            boolean includePast,
+            @Nullable LocalDate day
+    ) {
+        Specification<Visit> specification = Specification.allOf(
+                VisitSpecifications.onDay(day),
+                VisitSpecifications.startFrom(day == null ? from : null),
+                VisitSpecifications.startTo(day == null ? to : null),
+                VisitSpecifications.specialization(specialization),
+                VisitSpecifications.availableOnly(availableOnly),
+                VisitSpecifications.patientId(patientId),
+                VisitSpecifications.doctorId(doctorId),
+                VisitSpecifications.excludePast(includePast)
+        );
+
+        return visitRepository.findAll(specification);
     }
 }
